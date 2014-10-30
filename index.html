@@ -1,60 +1,30 @@
 <!doctype html>
 <html>
-<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-<style>
-    body {
-        font-family: Monospace;
-        background-color: #f0f0f0;
-        margin: 0;
-        overflow: hidden;
-    }
-</style>
+ <head>
+  <meta charset=utf-8 />
+  <meta name=author content="Michal Grňo"/>
+  <meta name=viewport content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"/>
+  <style>
+      body {
+          font-family: Monospace;
+          background-color: #f0f0f0;
+          margin: 0;
+          overflow: hidden;
+      }
+  </style>
+  
   <script src="liquidfun.js"></script>
   <script src="testbed/three.js"></script>
   <script src="testbed/boxThreeD.js"></script>
-
+  
   <script src="testbed/renderer.js"></script>
   <script src="testbed/testbed.js"></script>
   <script src="testbed/utils.js"></script>
-
-  <!-- tests !-->
+  
   <script src="testbed/tests/mytest.js"></script>
-  <script src="testbed/tests/testDamBreak.js"></script>
-  <script src="testbed/tests/testDrawingParticles.js"></script>
-  <script src="testbed/tests/testElasticParticles.js"></script>
-  <script src="testbed/tests/testImpulse.js"></script>
-  <script src="testbed/tests/testLiquidTimer.js"></script>
-  <script src="testbed/tests/testParticles.js"></script>
-  <script src="testbed/tests/testRigidParticles.js"></script>
-  <script src="testbed/tests/testSoup.js"></script>
-  <script src="testbed/tests/testSoupStirrer.js"></script>
-  <script src="testbed/tests/testSparky.js"></script>
-  <script src="testbed/tests/testSurfaceTension.js"></script>
-  <script src="testbed/tests/testTheoJansen.js"></script>
-  <script src="testbed/tests/testWaveMachine.js"></script>
-
-  <body onload="initTestbed()"></body>
-
-  <div style="position:absolute;float:right;z-index:1;border:1px solid #ccc;font:16px/26px Georgia, Garamond, Serif;overflow:auto;background:white">
-
-      <select id="tests" onchange="testSwitch(this.value)">
-        <option value="TestDamBreak">Dam Break</option>
-        <option value="TestDrawingParticles">Drawing Particles</option>
-        <option value="TestElasticParticles">Elastic Particles</option>
-        <option value="TestImpulse">Impulse</option>
-        <option value="TestLiquidTimer">Liquid Timer</option>
-        <option value="TestParticles">Particles</option>
-        <option value="TestRigidParticles">Rigid Particles</option>
-        <option value="TestSoup">Soup</option>
-        <option value="TestSoupStirrer">Soup Stirrer</option>
-        <option value="TestSparky">Sparky</option>
-        <option value="TestSurfaceTension">SurfaceTension</option>
-        <option value="TestTheoJansen">Theo Jansen</option>
-        <option value="TestWaveMachine">Wave Machine</option>
-        <option value="Game" selected>Game</option>
-      </select>
-
-  </div>
-
-
+  
+ </head>
+ 
+ <body onload="initTestbed()"></body>
+ 
 </html>
