@@ -25,80 +25,53 @@ window.Game = function() {
   bd.allowSleep = false;
   bd.position.Set(0, 1);
   var body = world.CreateBody(bd);
-
-  var b1 = new b2PolygonShape();
-  b1.SetAsBoxXYCenterAngle(0.05, 1, Vector(2, 0), 0);
-  body.CreateFixtureFromShape(b1, 5);
-
-  var b2 = new b2PolygonShape();
-  b2.SetAsBoxXYCenterAngle(0.05, 1, Vector(-2, 0), 0);
-  body.CreateFixtureFromShape(b2, 5);
-
-  var b3 = new b2PolygonShape();
-  b3.SetAsBoxXYCenterAngle(2, 0.05, Vector(0, 1), 0);
-  body.CreateFixtureFromShape(b3, 5);
-
-  var b4 = new b2PolygonShape();
-  b4.SetAsBoxXYCenterAngle(2, 0.05, Vector(0, -1), 0);
-  body.CreateFixtureFromShape(b4, 5);
-
-  var jd = new b2RevoluteJointDef();
-  jd.motorSpeed = 0.05 * Math.PI;
-  jd.maxMotorTorque = 1e2;
-  jd.enableMotor = true;
-  this.joint = jd.InitializeAndCreate(ground, body, Vector(0, 1));
-  this.time = 0;
-
-  // setup particles
-  var psd = new b2ParticleSystemDef();
-  psd.radius = 0.02;
-  psd.dampingStrength = 2;
-
-  var particleSystem = world.CreateParticleSystem(psd);
-  var box = new b2PolygonShape();
-  box.SetAsBoxXYCenterAngle(0.9, 0.9, Vector(0, 1.0), 0);
-
-  var particleGroupDef = new b2ParticleGroupDef();
-  particleGroupDef.shape = box;
-  particleGroupDef.color.Set(10, 20, 255, 255);
-  window.pgd = particleGroupDef;
-  var particleGroup = particleSystem.CreateParticleGroup(particleGroupDef);
+  
+  var level = Level();
+  var polyg = level.polygon;
+  var bed;
+  var i = -1;
+  while(++i<polyg.length-1){
+   bed = new b2PolygonShape();
+   bed.vertices.push( Vector( polyg[i  ][0], -10.0         ) );
+   bed.vertices.push( Vector( polyg[i  ][0], polyg[i  ][1] ) );
+   bed.vertices.push( Vector( polyg[i+1][0], polyg[i+1][1] ) );
+   bed.vertices.push( Vector( polyg[i+1][0], -10           ) );
+   ground.CreateFixtureFromShape(bed, 5);
+  }
+  
+  setTimeout(level.load,10000);
   
   
-  function createKayak(){
+  function createKayak(x,y){
    
    var bd = new b2BodyDef;
    bd.type = b2_dynamicBody;
    var kayak = world.CreateBody(bd);
    shape = new b2PolygonShape;
-   shape.vertices.push( Vector(.10, .00) );
    shape.vertices.push( Vector(.50, .00) );
    shape.vertices.push( Vector(.57, .05) );
    shape.vertices.push( Vector(.60, .10) );
    shape.vertices.push( Vector(.00, .10) );
    shape.vertices.push( Vector(.03, .05) );
-   kayak.CreateFixtureFromShape(shape, 0.1);
-   particleSystem.DestroyParticlesInShape(shape,
-       kayak.GetTransform());
+   shape.vertices.push( Vector(.10, .00) );
+   kayak.CreateFixtureFromShape(shape, 0.4);
    
    
    
    shape = new b2CircleShape;
    shape.position.Set(.3, .17);
    shape.radius = 0.07;
-   kayak.CreateFixtureFromShape(shape, 0.2);
-   var amount = particleSystem.DestroyParticlesInShape(shape,
-       kayak.GetTransform());
+   kayak.CreateFixtureFromShape(shape, 0.5);
    
    kayak.boat = kayak.fixtures[0];
    kayak.head = kayak.fixtures[1];
    
-   kayak.SetTransform(Vector(-1,0.4),0);
+   kayak.SetTransform(Vector(x,y),0);
    
    return kayak;
   }
   
-  kayak = createKayak();
+  kayak = createKayak(-100,-100);
   
   bd = new b2BodyDef;
   bd.type = b2_dynamicBody;
@@ -106,8 +79,6 @@ window.Game = function() {
   shape = new b2PolygonShape;
   shape.SetAsBoxXYCenterAngle(0.1, 0.1, new b2Vec2(1, 0.5), 0.5);
   body.CreateFixtureFromShape(shape, 1);
-  particleSystem.DestroyParticlesInShape(shape,
-      body.GetTransform());
   
   
   world.SetContactListener(this);
@@ -126,6 +97,7 @@ window.Game.prototype.BeginContactBody = function(contact) {
     console.log('ouch');
    }
   }
+  
 };
 
 
@@ -133,13 +105,13 @@ window.Game.prototype.Step = function() {
   
   //Step
   world.Step(timeStep, velocityIterations, positionIterations);
-  this.time += 1 / 60;
-  this.joint.SetMotorSpeed(.5*Math.cos(this.time));
+  this.time += timeStep;
 
   
   //Camera
   var pos = kayak.GetWorldCenter();
   var vel = kayak.GetLinearVelocity().length();
+  var rot = kayak.GetAngularVelocity();
   
   camera.position.x = pos.x +.2;
   camera.position.y = pos.y;
@@ -149,18 +121,30 @@ window.Game.prototype.Step = function() {
   camera.position.z /= 11;
   
   
-  //Controlls
+  //Controls
   if(key.Left){
-   kayak.ApplyTorque(.01);
+   if(rot<10){
+    if(rot>0){
+     kayak.ApplyTorque(.02/(rot+1));
+    }else{
+     kayak.ApplyTorque(.02);
+    }
+   }
   }
   if(key.Right){
-   kayak.ApplyTorque(-.01);
+   if(rot>-10){
+    if(rot<0){
+     kayak.ApplyTorque(.02/(rot-1));
+    }else{
+     kayak.ApplyTorque(-.02);
+    }
+   }
   }
   if(key.Up){
-   kayak.ApplyForceToCenter(new b2Vec2(.05,0))
+   kayak.ApplyForceToCenter(new b2Vec2(.1,0))
   }
   if(key.Down){
-   kayak.ApplyForceToCenter(new b2Vec2(-.05,0))
+   kayak.ApplyForceToCenter(new b2Vec2(-.1,0))
   }
 };
 
