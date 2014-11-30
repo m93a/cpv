@@ -17,9 +17,11 @@ function fl2str(fl){
 var key = {};
 document.addEventListener('keydown',function(e){
  key[e.key] = true;
+ key[e.keyCode] = true;
 });
 document.addEventListener('keyup',function(e){
  key[e.key] = false;
+ key[e.keyCode] = false;
 });
 
 window.Game = function() {
@@ -35,21 +37,21 @@ window.Game = function() {
   var body = world.CreateBody(bd);
   
   window.level = this.level = Level();
-  var polyg = level.polygon;
-  var bed;
-  var i = -1;
-  while(++i<polyg.length-1){
-   bed = new b2PolygonShape();
-   bed.vertices.push( Vector( polyg[i  ][0], -10.0         ) );
-   bed.vertices.push( Vector( polyg[i  ][0], polyg[i  ][1] ) );
-   bed.vertices.push( Vector( polyg[i+1][0], polyg[i+1][1] ) );
-   bed.vertices.push( Vector( polyg[i+1][0], -10           ) );
+  for( p in level.polygons ){
+   var polyg = level.polygons[p];
+   var bed = new b2ChainShape();
+   var i = -1;
+   var vertices = [];
+   while(++i<polyg.length){
+    bed.vertices.push( Vector( polyg[i][0], polyg[i][1] ) );
+   }
+   bed.friction = level.friction;
    ground.CreateFixtureFromShape(bed, 5);
   }
   
   level.stream[0].active == true;
   level.stream[1].active == true;
-  setTimeout(level.load,5000);
+  setTimeout(level.load, level.loadtime || 5000);
   
   
   diag = document.createElement('div');
@@ -148,12 +150,12 @@ window.Game.prototype.Step = function() {
   if(kayak.boost<100){
    kayak.boost += 1;
   }
-  if(key.b && kayak.boost>0){
+  if((key.b || key[66]) && kayak.boost>0){
    kayak.boost -= 2;
    speed = (kayak.speed * kayak.boost/50)+1;
   }
   
-  if(key.Left){
+  if(key.ArrowLeft || key[37]){
    if(rot<10){
     if(rot>0){
      kayak.ApplyTorque(.02/(rot+1));
@@ -162,7 +164,7 @@ window.Game.prototype.Step = function() {
     }
    }
   }
-  if(key.Right){
+  if(key.ArrowRight || key[39]){
    if(rot>-10){
     if(rot<0){
      kayak.ApplyTorque(.02/(rot-1));
@@ -171,19 +173,19 @@ window.Game.prototype.Step = function() {
     }
    }
   }
-  if(key.Up){
+  if(key.Up || key[38]){
    kayak.ApplyForceToCenter(new b2Vec2(speed/10,0))
   }
-  if(key.Down){
+  if(key.Down || key[40]){
    kayak.ApplyForceToCenter(new b2Vec2(-speed/10,0))
   }
   
-  if(key.r){
+  if(key.r || key[82]){
    level.reload();
   }
   
   //<cheat>
-  if(key.x){
+  if(key.x || key[88]){
    kayak.ApplyForceToCenter(new b2Vec2(0,.4))
   }
   //</cheat>
