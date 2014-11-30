@@ -4,7 +4,15 @@ var Vector = function(x,y){
 };
 
 
-var kayak;
+var kayak = {};
+var diag = {};
+
+function fl2str(fl){
+ var str = (Math.round(fl*100)/100).toString(10);
+ (str.indexOf('.')+1)||(str+='.');
+ while(str.substr(-3,1)!='.'){ str+='0'; }
+ return str;
+}
 
 var key = {};
 document.addEventListener('keydown',function(e){
@@ -26,7 +34,7 @@ window.Game = function() {
   bd.position.Set(0, 1);
   var body = world.CreateBody(bd);
   
-  var level = Level();
+  window.level = this.level = Level();
   var polyg = level.polygon;
   var bed;
   var i = -1;
@@ -39,7 +47,16 @@ window.Game = function() {
    ground.CreateFixtureFromShape(bed, 5);
   }
   
-  setTimeout(level.load,10000);
+  level.stream[0].active == true;
+  level.stream[1].active == true;
+  setTimeout(level.load,5000);
+  
+  
+  diag = document.createElement('div');
+  diag.style.position = 'fixed';
+  diag.style.left = diag.style.top = 0;
+  diag.style.fontFamily = 'monospace';
+  document.body.appendChild(diag);
   
   
   function createKayak(x,y){
@@ -65,6 +82,9 @@ window.Game = function() {
    
    kayak.boat = kayak.fixtures[0];
    kayak.head = kayak.fixtures[1];
+   
+   kayak.boost = 100;
+   kayak.speed = 1;
    
    kayak.SetTransform(Vector(x,y),0);
    
@@ -122,6 +142,17 @@ window.Game.prototype.Step = function() {
   
   
   //Controls
+  var speed = kayak.speed;
+  
+  
+  if(kayak.boost<100){
+   kayak.boost += 1;
+  }
+  if(key.b && kayak.boost>0){
+   kayak.boost -= 2;
+   speed = (kayak.speed * kayak.boost/50)+1;
+  }
+  
   if(key.Left){
    if(rot<10){
     if(rot>0){
@@ -141,10 +172,34 @@ window.Game.prototype.Step = function() {
    }
   }
   if(key.Up){
-   kayak.ApplyForceToCenter(new b2Vec2(.1,0))
+   kayak.ApplyForceToCenter(new b2Vec2(speed/10,0))
   }
   if(key.Down){
-   kayak.ApplyForceToCenter(new b2Vec2(-.1,0))
+   kayak.ApplyForceToCenter(new b2Vec2(-speed/10,0))
   }
+  
+  if(key.r){
+   level.reload();
+  }
+  
+  //<cheat>
+  if(key.x){
+   kayak.ApplyForceToCenter(new b2Vec2(0,.4))
+  }
+  //</cheat>
+  
+  
+  //Level
+  if(level.ready){
+   var s;
+   for(i in this.level.stream){
+    s = this.level.stream[i];
+    s.active = s.shape.position
+                .distanceTo(kayak.GetPosition())<2*s.lifetime;
+   }
+  }
+  
+  diag.textContent = 'boost: '+fl2str(kayak.boost)+'; '
+                    +'speed: '+fl2str(speed);
 };
 

@@ -1,6 +1,6 @@
-function Stream(ps,shape,impulse,freq,lifetime){
+function Stream(ps,shape,impulse,freq,lifetime,active){
  if(!(this instanceof Stream)){
-  return new Stream(ps,shape,impulse,freq,lifetime);
+  return new Stream(ps,shape,impulse,freq,lifetime,active);
  }
  
  var self = this;
@@ -9,10 +9,14 @@ function Stream(ps,shape,impulse,freq,lifetime){
  lifetime *= 1000;
  
  this.particleSystem = ps;
+ this.active = active;
+ this.lifetime = lifetime;
  
  this.particleGroupDef = new b2ParticleGroupDef();
  this.particleGroupDef.shape = shape;
  this.particleGroupDef.color.Set(10, 20, 255, 255);
+ 
+ this.shape = this.particleGroupDef.shape;
  
  this.generate = function(v){
   this.particleSystem.DestroyParticlesInShape(
@@ -30,11 +34,11 @@ function Stream(ps,shape,impulse,freq,lifetime){
   
   setTimeout(function(){
    particleGroup.DestroyParticles();
-  },lifetime);
+  },this.lifetime);
  };
  
  setInterval(function(){
-  self.generate(impulse);
+  self.active && self.generate(impulse);
  },freq);
 };
 
