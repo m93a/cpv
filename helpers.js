@@ -1,3 +1,7 @@
+function RandomFloat(min, max) {
+  return min + (max - min) * Math.random();
+}
+
 function Stream(ps,shape,impulse,freq,lifetime,active){
  if(!(this instanceof Stream)){
   return new Stream(ps,shape,impulse,freq,lifetime,active);
