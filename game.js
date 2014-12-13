@@ -4,14 +4,20 @@ var Vector = function(x,y){
 };
 
 
-var kayak = {};
-var diag = {};
+var kayak, diag, time, timeoutId;
 
 function fl2str(fl){
  var str = (Math.round(fl*100)/100).toString(10);
  (str.indexOf('.')+1)||(str+='.');
  while(str.substr(-3,1)!='.'){ str+='0'; }
  return str;
+}
+
+function timediff(a,b){
+ var delta=(Date.now()-a)/1000;
+ var sec=delta%60;
+ var min=(delta-sec)/60;
+ return min.toString(10)+":"+fl2str(sec);
 }
 
 var key = {};
@@ -24,19 +30,138 @@ document.addEventListener('keyup',function(e){
  key[e.keyCode] = false;
 });
 
-window.Game = function() {
+var menuElem;
+var initMenu;
+
+(function(){
+  
+  menuElem = document.createElement("div");
+  menuElem.id = "menu";
+  
+  (function appendChild(){
+    document.body ? document.body.appendChild( menuElem )
+                  : setTimeout( appendChild );
+  })();
+  
+  function defaultMenu() {
+    
+    menuElem.textContent = "";
+    
+    var h1 = document.createElement("h1");
+    h1.textContent = "ČPV_14";
+    h1.id = "title";
+    menuElem.appendChild( h1 );
+    
+    var play = document.createElement("div");
+    play.textContent = "Hrát";
+    play.classList.add("button");
+    menuElem.appendChild( play );
+    
+    var kayakSelect = document.createElement("div");
+    kayakSelect.textContent = "Vybrat loď";
+    kayakSelect.classList.add("button");
+    menuElem.appendChild( kayakSelect );
+    
+    var help = document.createElement("div");
+    help.textContent = "Jak hrát";
+    help.classList.add("button");
+    menuElem.appendChild( help );
+    
+    var credits = document.createElement("div");
+    credits.textContent = "O hře";
+    credits.classList.add("button");
+    menuElem.appendChild( credits );
+    
+    play.addEventListener("click",function(){
+      levelMenu();
+    });
+    
+    help.addEventListener("click",function(){
+      Help();
+    });
+    
+    credits.addEventListener("click",function(){
+      Credits();
+    });
+    
+  };
+  
+  function levelMenu(){
+    
+    menuElem.textContent = "";
+    
+    var l1 = document.createElement("div");
+    l1.textContent = "Střela";
+    l1.classList.add("button");
+    menuElem.appendChild( l1 );
+    
+    var l2 = document.createElement("div");
+    l2.textContent = "Teplá";
+    l2.classList.add("button");
+    menuElem.appendChild( l2 );
+    
+    var l3 = document.createElement("div");
+    l3.textContent = "WW4";
+    l3.classList.add("button");
+    menuElem.appendChild( l3 );
+    
+    var back = document.createElement("div");
+    back.textContent = "Zpět";
+    back.classList.add("button");
+    menuElem.appendChild( back );
+    
+    
+    l1.addEventListener("click",function(){
+      testSwitch("Game","Strela");
+    });
+    
+    l2.addEventListener("click",function(){
+      testSwitch("Game","Tepla");
+    });
+    
+    l3.addEventListener("click",function(){
+      testSwitch("Game","Ww4")
+    });
+    
+    back.addEventListener("click",function(){
+      defaultMenu();
+    });
+    
+  };
+  
+  initMenu = defaultMenu;
+  
+})();
+
+window.Menu = function(){
+  
+  diag && diag.remove();
+  time && time.remove();
+  
+  timeoutId && ( clearTimeout( timeoutId ), timeoutId = 0 );
+  
+  ResetWorld();
+  menuElem.classList.remove("hidden");
+  initMenu();
+  
+};
+
+window.Game = function( levelName ) {
+  
+  this.levelName = levelName;
+  
   camera.position.y = 1;
   camera.position.z = 2.5;
-
+  
   var bd = new b2BodyDef();
   var ground = world.CreateBody(bd);
-
+  
   bd.type = b2_dynamicBody;
   bd.allowSleep = false;
   bd.position.Set(0, 1);
   var body = world.CreateBody(bd);
   
-  window.level = this.level = Level();
+  window.level = this.level = window[levelName]();
   for( p in level.polygons ){
    var polyg = level.polygons[p];
    var bed = new b2ChainShape();
@@ -51,14 +176,18 @@ window.Game = function() {
   
   level.stream[0].active == true;
   level.stream[1].active == true;
-  setTimeout(level.load, level.loadtime || 5000);
+  timeoutId = setTimeout(level.load, level.loadtime || 5000);
   
   
   diag = document.createElement('div');
   diag.style.position = 'fixed';
   diag.style.left = diag.style.top = 0;
-  diag.style.fontFamily = 'monospace';
   document.body.appendChild(diag);
+  
+  time = document.createElement('div');
+  time.style.position = 'fixed';
+  time.style.right = time.style.top = 0;
+  document.body.appendChild(time);
   
   
   function createKayak(x,y){
@@ -184,6 +313,10 @@ window.Game.prototype.Step = function() {
    level.reload();
   }
   
+  if(key.Escape || key[27]){
+   location.href+="";
+  }
+  
   //<cheat>
   if(key.x || key[88]){
    kayak.ApplyForceToCenter(new b2Vec2(0,.4))
@@ -203,5 +336,28 @@ window.Game.prototype.Step = function() {
   
   diag.textContent = 'boost: '+fl2str(kayak.boost)+'; '
                     +'speed: '+fl2str(speed);
+  
+  time.textContent = timediff(level.time,Date.now());
+  
+  if(kayak.GetPosition().x > level.finish){
+    Highscore( this.levelName, level.time );
+  }
+  
+  
+  //Speed limiter
+  var WATER_MAX_VELOCITY = level.waterMax;
+  var velo = level.water.GetVelocityBuffer();
+  for(i in velo){
+    
+    if(velo[i] > WATER_MAX_VELOCITY){
+       velo[i] = WATER_MAX_VELOCITY;
+    }else
+    
+    if(velo[i] <-WATER_MAX_VELOCITY){
+       velo[i] =-WATER_MAX_VELOCITY;
+    }
+    
+  }
+  
 };
 

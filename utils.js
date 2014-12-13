@@ -22,7 +22,7 @@ function Stream(ps,shape,impulse,freq,lifetime,active){
  
  this.shape = this.particleGroupDef.shape;
  
- this.generate = function(v){
+ this.generate = function(v){ //return; //FIXME, just for testing purposes
   this.particleSystem.DestroyParticlesInShape(
    shape,
    new b2Transform()
@@ -89,11 +89,10 @@ function Rect(x,y,w,h){
  x=+x; y=+y; w=+w; h=+h;
  w /= 2; h /= 2;
  var shape = new b2PolygonShape();
- shape.position.Set(x,y);
- shape.vertices.push( Vector(-w,-h) );
- shape.vertices.push( Vector( w,-h) );
- shape.vertices.push( Vector( w, h) );
- shape.vertices.push( Vector(-w, h) );
+ shape.vertices.push(Vector( x-w, y-h ));
+ shape.vertices.push(Vector( x+w, y-h ));
+ shape.vertices.push(Vector( x+w, y+h ));
+ shape.vertices.push(Vector( x-w, y+h ));
  return shape;
 };
 

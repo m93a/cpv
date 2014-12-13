@@ -71,12 +71,13 @@ function initTestbed() {
   Testbed();
 }
 
-function testSwitch(testName) {
+function testSwitch(testName,levelName) {
+  menuElem.classList.add("hidden");
   ResetWorld();
   world.SetGravity(new b2Vec2(0, -10));
   var bd = new b2BodyDef;
   g_groundBody = world.CreateBody(bd);
-  test = new window[testName];
+  test = new window[testName]( levelName );
 }
 
 function Testbed(obj) {
@@ -146,7 +147,8 @@ function Testbed(obj) {
 
   window.addEventListener( 'resize', onWindowResize, false );
 
-  testSwitch("Game");
+  // onload
+  initMenu();
 
   render();
 }

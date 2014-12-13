@@ -1,4 +1,4 @@
-function Level(){
+window.Ww4 = function(){
  
  var level = {};
  

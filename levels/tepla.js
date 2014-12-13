@@ -1,4 +1,4 @@
-function Level(){
+window.Tepla = function(){
  
  var level = {};
  

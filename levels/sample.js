@@ -1,4 +1,4 @@
-function Level(){
+winodw.Sample = function(){
  
  var level = {};
  
