@@ -174,8 +174,8 @@ window.Game = function( levelName ) {
    ground.CreateFixtureFromShape(bed, 5);
   }
   
-  level.stream[0].active == true;
-  level.stream[1].active == true;
+  (level.stream[0]||{}).active == true;
+  (level.stream[1]||{}).active == true;
   timeoutId = setTimeout(level.load, level.loadtime || 5000);
   
   

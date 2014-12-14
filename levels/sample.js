@@ -1,4 +1,4 @@
-winodw.Sample = function(){
+window.Sample = function(){
  
  var level = {};
  
@@ -8,8 +8,12 @@ winodw.Sample = function(){
  var w = world.CreateParticleSystem(psd);
  level.water = w;
  
+ level.waterMax = 5;
  level.friction = 10;
- level.loadtime = 5000;
+ 
+ level.loadtime = 10000;
+ level.time = Date.now() + level.loadtime;
+ level.finish = 100;
  
  level.polygons = [
   [
@@ -23,18 +27,23 @@ winodw.Sample = function(){
    [+12.0,+0.2]
   ]
  ];
+ 
  level.stream = [
   Stream( w, Circle(+ 2.0, +3.0, .5 ), Vector( .1,  0), 0.50, 50, 1),
   Stream( w, Circle(+13.0, -4.8, .2 ), Vector( .4, .1), 0.15, 20),
   Stream( w, Circle(+21.8, -7.7, .1 ), Vector(  2,  0), 0.10, 10),
  ];
+ 
  level.ready = false;
+ 
  level.load = function(){
+  level.time = Date.now();
   level.ready = true;
   kayak.SetTransform(new b2Vec2(10,2),0);
   kayak.SetLinearVelocity(new b2Vec2(0,0));
   kayak.SetAngularVelocity(0);
  };
+ 
  level.reload = function(){
   level.ready = false;
   level.load();

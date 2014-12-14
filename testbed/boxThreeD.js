@@ -22,5 +22,26 @@ b2Vec2 = THREE.Vector2;
 
 
 
+/* * * *
+ * b2ParticleColor == THREE.Color
+ * * * */
+
+THREE.Color.prototype.Set = function(r,g,b,a){
+  var inv255 = .003921569;
+  this.r = r * inv255;
+  this.g = g * inv255;
+  this.b = b * inv255;
+  this.a = a * inv255;
+};
+THREE.Color.prototype.a = 0;
+
+b2ParticleColor = function(r,g,b,a){
+  THREE.Color.apply(this);
+  this.Set(r,g,b,a);
+};
+
+b2ParticleColor.prototype = THREE.Color.prototype;
+
+
 
 })();

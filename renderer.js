@@ -1,4 +1,4 @@
-var inv255 = .003921569;
+var inv255 = THREE.Color.prototype === b2ParticleColor.prototype ? 1 : .003921569;
 
 function Renderer() {
   // init large buffer geometry
