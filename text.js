@@ -43,7 +43,7 @@ window.Help = function(){
   menuElem.appendChild( h1 );
   
   var about = document.createElement("pre");
-  about.textContent = "Tvůj cíl je dostat se co nejrychleji do cíle.\n"
+  about.textContent = "Tvůj cíl je dostat se co nejrychleji na konec levelu.\n"
                     + "Kajak ovládáš šipkami - šipkou nahoru pádluješ dopředu,\n"
                     + "šipkou dolů naopak. Šipkami do stran se otáčíš.\n"
                     + "Tlačítko B je boost - zrychlí tě, ale pozor, máš jen omezenou energii!\n"
